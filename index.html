@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍓 Strawberry Disease Detection - Web Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 3px dashed #3498db;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #2980b9;
+            background: #ecf0f1;
+        }
+        .upload-area.dragover {
+            border-color: #27ae60;
+            background: #d5f4e6;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .upload-btn:hover {
+            background: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .healthy {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 2px solid #27ae60;
+        }
+        .not-healthy {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+        .preview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .info {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .github-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .github-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .github-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍓 Strawberry Disease Detection</h1>
+        <p class="subtitle">Upload a strawberry image to detect diseases using YOLOv8</p>
+        
+        <div class="info">
+            <strong>Note:</strong> This is a demo interface. For actual detection, you need to run the Python scripts locally or deploy the model to a server.
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <p>📁 Drag & drop a strawberry image here</p>
+            <p>or</p>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Choose Image
+            </button>
+            <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files[0])">
+        </div>
+        
+        <div id="preview"></div>
+        <div id="result"></div>
+        
+        <div class="github-link">
+            <p>🔗 <a href="https://github.com/vishnuskandha/strawberry-disease-detection" target="_blank">View on GitHub</a></p>
+            <p>📖 <a href="https://github.com/vishnuskandha/strawberry-disease-detection#readme" target="_blank">Read Documentation</a></p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const result = document.getElementById('result');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                showPreview(e.target.result);
+                simulateDetection(file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showPreview(imageSrc) {
+            preview.innerHTML = `<img src="${imageSrc}" class="preview" alt="Uploaded image">`;
+        }
+
+        function simulateDetection(filename) {
+            // This is a demo simulation - replace with actual API call
+            result.innerHTML = '<p>🔄 Analyzing image...</p>';
+            
+            setTimeout(() => {
+                // Simulate detection based on filename (for demo purposes)
+                const isHealthy = !filename.toLowerCase().includes('angular') && 
+                                !filename.toLowerCase().includes('mold') && 
+                                !filename.toLowerCase().includes('spot');
+                
+                if (isHealthy) {
+                    result.innerHTML = `
+                        <div class="result healthy">
+                            ✅ HEALTHY - No diseases detected!
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result not-healthy">
+                            ❌ NOT HEALTHY - Diseases detected!
+                            <br><small>Detected: Angular Leafspot, Gray Mold, or Leaf Spot</small>
+                        </div>
+                    `;
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
