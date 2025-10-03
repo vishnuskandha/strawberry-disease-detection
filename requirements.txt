@@ -1,0 +1,8 @@
+ ultralytics==8.2.103
+ streamlit==1.37.1
+ opencv-python==4.9.0.80
+ numpy==1.26.4
+ PyYAML==6.0.2
+ Pillow==10.4.0
+
+

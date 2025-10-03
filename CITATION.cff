@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: Strawberry Disease Detection (YOLOv8)
+message: If you use this repository, please cite it and the dataset/tools below.
+authors:
+  - family-names: Skandha
+    given-names: Vishnu
+date-released: 2025-10-03
+version: 1.0.0
+repository-code: https://github.com/vishnuskandha/strawberry-disease-detection
+keywords: [computer-vision, yolo, object-detection, agriculture, plant-disease]
+preferred-citation:
+  type: software
+  title: Strawberry Disease Detection (YOLOv8)
+  authors:
+    - family-names: Skandha
+      given-names: Vishnu
+  url: https://github.com/vishnuskandha/strawberry-disease-detection
+  year: 2025
+references:
+  - type: dataset
+    title: Strawberry Disease Detection Dataset
+    authors:
+      - family-names: Afzaal
+        given-names: Usman
+    notes: Kaggle dataset used for training
+    url: https://www.kaggle.com/datasets/usmanafzaal/strawberry-disease-detection-dataset
+  - type: software
+    title: Ultralytics YOLOv8
+    authors:
+      - name: Ultralytics
+    url: https://github.com/ultralytics/ultralytics
+

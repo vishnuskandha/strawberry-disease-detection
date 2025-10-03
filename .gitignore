@@ -1,0 +1,35 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+env/
+
+# Ultralytics / training outputs
+runs/
+yolo/
+
+# Data sets (avoid pushing large data)
+train/
+val/
+test/
+Dataset.txt
+
+# Weights and artifacts
+*.pt
+*.onnx
+*.engine
+*.tflite
+
+# Streamlit
+.streamlit/
+
