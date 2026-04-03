@@ -30,7 +30,7 @@ def collect_classes(json_paths: List[Path]) -> List[str]:
     return labels
 
 
-def convert_split(split_dir: Path, out_split_dir: Path, class_to_id: Dict[str, int]) -> None:
+def convert_split(split_dir: Path, out_split_dir: Path, class_to_id: Dict[str, int]) -> int:
     img_out = out_split_dir / "images"
     lbl_out = out_split_dir / "labels"
     ensure_dir(img_out)
@@ -38,11 +38,20 @@ def convert_split(split_dir: Path, out_split_dir: Path, class_to_id: Dict[str, i
 
     json_files = sorted(split_dir.glob("*.json"))
 
+    converted_files = 0
+
     for jp in json_files:
         data = json.loads(jp.read_text(encoding="utf-8"))
         img_name = data.get("imagePath")
-        img_w = float(data.get("imageWidth"))
-        img_h = float(data.get("imageHeight"))
+        try:
+            img_w = float(data.get("imageWidth"))
+            img_h = float(data.get("imageHeight"))
+        except (TypeError, ValueError):
+            print(f"Skipping {jp.name}: invalid image dimensions")
+            continue
+        if img_w <= 0 or img_h <= 0:
+            print(f"Skipping {jp.name}: non-positive image dimensions")
+            continue
         if not img_name:
             img_name = f"{jp.stem}.jpg"
         img_src = split_dir / img_name
@@ -71,6 +80,9 @@ def convert_split(split_dir: Path, out_split_dir: Path, class_to_id: Dict[str, i
             lines.append(f"{cls_id} {cx:.6f} {cy:.6f} {w:.6f} {h:.6f}")
 
         (lbl_out / f"{jp.stem}.txt").write_text("\n".join(lines), encoding="utf-8")
+        converted_files += 1
+
+    return converted_files
 
 
 def main() -> None:
@@ -85,10 +97,11 @@ def main() -> None:
     class_to_id = {c: i for i, c in enumerate(classes)}
 
     out_root = root / "yolo"
+    total_converted = 0
     for s in splits:
         sd = root / s
         if sd.exists():
-            convert_split(sd, out_root / s, class_to_id)
+            total_converted += convert_split(sd, out_root / s, class_to_id)
 
     yaml_lines = [
         f"path: {out_root.as_posix()}",
@@ -100,6 +113,7 @@ def main() -> None:
     (root / "dataset.yaml").write_text("\n".join(yaml_lines) + "\n", encoding="utf-8")
     print("Classes:", classes)
     print("Wrote dataset.yaml and YOLO directories under", out_root)
+    print("Converted annotation files:", total_converted)
 
 
 if __name__ == "__main__":

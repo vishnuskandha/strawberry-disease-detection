@@ -10,7 +10,7 @@ def main():
         raise FileNotFoundError("dataset.yaml not found. Run tools/convert_labelme_to_yolo.py first.")
 
     # Auto-resume if a previous run exists
-    default_run = root / "runs" / "yolov8n-strawberry" / "weights"
+    default_run = root / "runs" / "detect" / "yolov8n-strawberry" / "weights"
     last_ckpt = default_run / "last.pt"
     best_ckpt = default_run / "best.pt"
 

@@ -6,21 +6,26 @@ No web server required - just run and provide image path
 
 import sys
 from pathlib import Path
-from ultralytics import YOLO
-from PIL import Image
+
 import cv2
-import numpy as np
+from ultralytics import YOLO
 
 def load_model():
     """Load the trained model"""
     root = Path(__file__).resolve().parent
-    weights_path = root / "runs" / "yolov8n-strawberry" / "weights" / "best.pt"
-    
-    if not weights_path.exists():
-        print(f"❌ Model weights not found at: {weights_path}")
+    candidate_paths = [
+        root / "runs" / "yolov8n-strawberry" / "weights" / "best.pt",
+        root / "runs" / "detect" / "yolov8n-strawberry" / "weights" / "best.pt",
+    ]
+    weights_path = next((path for path in candidate_paths if path.exists()), candidate_paths[0])
+
+    if not any(path.exists() for path in candidate_paths):
+        print("❌ Model weights not found in expected locations:")
+        for path in candidate_paths:
+            print(f"   - {path}")
         print("Please train the model first using: python train_yolov8.py")
         return None
-    
+
     print(f"✅ Loading model from: {weights_path}")
     return YOLO(str(weights_path))
 
@@ -57,7 +62,7 @@ def detect_diseases(model, image_path):
         
     except Exception as e:
         print(f"❌ Error during detection: {e}")
-        return None, None
+        return None
 
 def main():
     print("🍓 Strawberry Disease Detection")
@@ -83,7 +88,7 @@ def main():
     
     # Run detection
     result = detect_diseases(model, image_path)
-    if result is None:
+    if not result:
         return
     
     detections, image = result

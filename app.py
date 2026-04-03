@@ -1,8 +1,9 @@
- import io
- from pathlib import Path
- import streamlit as st
- from PIL import Image
- from ultralytics import YOLO
+import io
+from pathlib import Path
+
+import streamlit as st
+from PIL import Image
+from ultralytics import YOLO
 
 
 @st.cache_resource
@@ -25,12 +26,12 @@ def main():
     uploaded = st.file_uploader("Upload a strawberry image", type=["jpg", "jpeg", "png"])
     if uploaded and weights_path.exists():
         image = Image.open(io.BytesIO(uploaded.read())).convert("RGB")
-        st.image(image, caption="Input", use_column_width=True)
+        st.image(image, caption="Input", use_container_width=True)
         model = load_model(weights_path)
         results = model.predict(source=image, imgsz=640, conf=0.25, verbose=False)
         res = results[0]
         plot = res.plot()  # numpy array BGR
-        st.image(plot[:, :, ::-1], caption="Detections", use_column_width=True)
+        st.image(plot[:, :, ::-1], caption="Detections", use_container_width=True)
 
         # Healthy vs Not Healthy heuristic: if any detection, it's not healthy
         class_names = model.names
@@ -43,6 +44,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

@@ -13,7 +13,7 @@ REM Show starting message
 echo [!STAMP!] Starting YOLOv8 training (auto-resume if available)...
 
 REM Estimate epochs remaining if a last.pt exists by reading results.csv epochs
-set RUN_DIR=runs\yolov8n-strawberry
+set RUN_DIR=runs\\detect\\yolov8n-strawberry
 set CSV=%RUN_DIR%\results.csv
 if exist "%CSV%" (
   for /f "usebackq skip=1 tokens=1 delims=," %%E in ("%CSV%") do (
