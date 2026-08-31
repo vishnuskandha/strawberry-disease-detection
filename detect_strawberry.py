@@ -10,8 +10,9 @@ from pathlib import Path
 import cv2
 from ultralytics import YOLO
 
+
 def load_model():
-    """Load the trained model"""
+    """Load the trained model."""
     root = Path(__file__).resolve().parent
     candidate_paths = [
         root / "runs" / "yolov8n-strawberry" / "weights" / "best.pt",
@@ -29,94 +30,93 @@ def load_model():
     print(f"✅ Loading model from: {weights_path}")
     return YOLO(str(weights_path))
 
+
 def detect_diseases(model, image_path):
-    """Detect diseases in strawberry image"""
+    """Detect diseases in strawberry image."""
     try:
-        # Load and process image
         image = cv2.imread(str(image_path))
         if image is None:
             print(f"❌ Could not load image: {image_path}")
             return None
-        
-        # Run detection
+
         results = model(image)
-        
-        # Process results
+
         detections = []
-        for r in results:
-            boxes = r.boxes
+        for result in results:
+            boxes = result.boxes
             if boxes is not None:
                 for box in boxes:
-                    # Get class name and confidence
                     class_id = int(box.cls[0])
                     confidence = float(box.conf[0])
                     class_name = model.names[class_id]
-                    
+
                     detections.append({
-                        'class': class_name,
-                        'confidence': confidence,
-                        'bbox': box.xyxy[0].tolist()
+                        "class": class_name,
+                        "confidence": confidence,
+                        "bbox": box.xyxy[0].tolist(),
                     })
-        
+
         return detections, image
-        
+
     except Exception as e:
         print(f"❌ Error during detection: {e}")
         return None
 
+
 def main():
     print("🍓 Strawberry Disease Detection")
     print("=" * 40)
-    
-    # Load model
+
     model = load_model()
     if model is None:
-        return
-    
-    # Get image path from command line or prompt
+        return 1
+
     if len(sys.argv) > 1:
         image_path = Path(sys.argv[1])
     else:
         image_path_str = input("Enter path to strawberry image: ").strip()
         image_path = Path(image_path_str)
-    
+
     if not image_path.exists():
         print(f"❌ Image not found: {image_path}")
-        return
-    
+        return 1
+    if not image_path.is_file():
+        print(f"❌ Image path is not a file: {image_path}")
+        return 1
+
     print(f"🔍 Analyzing: {image_path.name}")
-    
-    # Run detection
+
     result = detect_diseases(model, image_path)
-    if not result:
-        return
-    
+    if result is None:
+        return 1
+
     detections, image = result
-    
-    # Display results
+
     print("\n📊 Detection Results:")
     print("-" * 30)
-    
+
     if not detections:
         print("✅ HEALTHY - No diseases detected!")
     else:
         print("❌ NOT HEALTHY - Diseases detected:")
         for det in detections:
             print(f"  • {det['class']} (confidence: {det['confidence']:.2f})")
-    
-    # Save result image with annotations
+
     if detections and image is not None:
-        # Draw bounding boxes
         for det in detections:
-            x1, y1, x2, y2 = map(int, det['bbox'])
+            x1, y1, x2, y2 = map(int, det["bbox"])
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             label = f"{det['class']}: {det['confidence']:.2f}"
-            cv2.putText(image, label, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-        
-        # Save annotated image
+            cv2.putText(image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+
         output_path = image_path.parent / f"{image_path.stem}_detected{image_path.suffix}"
-        cv2.imwrite(str(output_path), image)
+        if not cv2.imwrite(str(output_path), image):
+            print(f"❌ Failed to save annotated image: {output_path}")
+            return 1
         print(f"\n💾 Annotated image saved: {output_path}")
 
+    return 0
+
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
