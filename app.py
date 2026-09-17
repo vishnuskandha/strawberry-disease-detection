@@ -5,6 +5,8 @@ import streamlit as st
 from PIL import Image
 from ultralytics import YOLO
 
+from image_validation import validate_image_bytes
+
 
 @st.cache_resource
 def load_model(weights_path: Path):
@@ -25,7 +27,14 @@ def main():
 
     uploaded = st.file_uploader("Upload a strawberry image", type=["jpg", "jpeg", "png"])
     if uploaded and weights_path.exists():
-        image = Image.open(io.BytesIO(uploaded.read())).convert("RGB")
+        data = uploaded.getvalue()
+        try:
+            validate_image_bytes(data)
+        except ValueError as exc:
+            st.error(str(exc))
+            return
+
+        image = Image.open(io.BytesIO(data)).convert("RGB")
         st.image(image, caption="Input", use_container_width=True)
         model = load_model(weights_path)
         results = model.predict(source=image, imgsz=640, conf=0.25, verbose=False)
